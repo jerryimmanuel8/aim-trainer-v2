@@ -1,0 +1,140 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#080d1c">
+<title>Neon Aim Trainer</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#080d1c;color:white;
+ font-family:Arial,sans-serif;text-align:center;
+ overflow:hidden
+}
+header{padding:18px}
+h1{color:#35eaff;margin:8px}
+.stats{
+ display:flex;justify-content:space-around;
+ gap:8px;padding:12px
+}
+.stat{
+ background:#111d32;border:1px solid #1b4960;
+ border-radius:12px;padding:12px;flex:1
+}
+.stat b{display:block;color:#35eaff;font-size:22px}
+#arena{
+ position:relative;margin:10px auto;
+ width:94vw;height:55vh;max-height:500px;
+ background:radial-gradient(#142943,#090f20);
+ border:1px solid #23617c;border-radius:18px;
+ overflow:hidden;touch-action:manipulation
+}
+.target{
+ position:absolute;width:48px;height:48px;
+ border-radius:50%;
+ background:radial-gradient(circle,#fff 0 12%,#ff3d9a 15% 35%,#ff1744 38% 58%,#75133d 62%);
+ box-shadow:0 0 18px #ff287f;
+ transform:translate(-50%,-50%);
+}
+button{
+ background:#13d9ed;color:#06111b;
+ border:0;border-radius:12px;
+ padding:14px 25px;font-size:17px;
+ font-weight:bold;margin:8px
+}
+#message{color:#a9c9df;margin:12px}
+</style>
+</head>
+<body>
+<header>
+<h1>NEON AIM TRAINER</h1>
+<p>Train your aim. Beat your score.</p>
+</header>
+
+<div class="stats">
+ <div class="stat">SCORE<b id="score">0</b></div>
+ <div class="stat">TIME<b id="time">30</b></div>
+ <div class="stat">HITS<b id="hits">0</b></div>
+ <div class="stat">ACCURACY<b id="accuracy">0%</b></div>
+</div>
+
+<div id="arena"></div>
+<div id="message">Tap START to begin your training.</div>
+<button id="start">START GAME</button>
+
+<script>
+const arena=document.getElementById("arena");
+const scoreEl=document.getElementById("score");
+const timeEl=document.getElementById("time");
+const hitsEl=document.getElementById("hits");
+const accuracyEl=document.getElementById("accuracy");
+const message=document.getElementById("message");
+const startBtn=document.getElementById("start");
+
+let score=0,hits=0,shots=0,time=30;
+let playing=false,timer=null,target=null;
+
+function update(){
+ scoreEl.textContent=score;
+ hitsEl.textContent=hits;
+ timeEl.textContent=time;
+ accuracyEl.textContent=
+ shots ? Math.round(hits/shots*100)+"%" : "0%";
+}
+
+function spawnTarget(){
+ if(target) target.remove();
+ target=document.createElement("div");
+ target.className="target";
+ const x=24+Math.random()*(arena.clientWidth-48);
+ const y=24+Math.random()*(arena.clientHeight-48);
+ target.style.left=x+"px";
+ target.style.top=y+"px";
+ arena.appendChild(target);
+}
+
+function endGame(){
+ playing=false;
+ clearInterval(timer);
+ if(target) target.remove();
+ target=null;
+ message.textContent="Training complete! Score: "+score;
+ startBtn.textContent="PLAY AGAIN";
+}
+
+function startGame(){
+ clearInterval(timer);
+ score=0;hits=0;shots=0;time=30;
+ playing=true;
+ message.textContent="Tap the targets!";
+ startBtn.textContent="RESTART";
+ update();
+ spawnTarget();
+ timer=setInterval(()=>{
+  time--;
+  update();
+  if(time<=0) endGame();
+ },1000);
+}
+
+arena.addEventListener("pointerdown",e=>{
+ if(!playing)return;
+ shots++;
+ if(e.target.classList.contains("target")){
+  hits++;
+  score+=10;
+  spawnTarget();
+ }else{
+  score=Math.max(0,score-2);
+ }
+ update();
+});
+
+startBtn.addEventListener("click",startGame);
+update();
+</script>
+</body>
+  </html>
+  
